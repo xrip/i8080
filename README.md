@@ -1,8 +1,8 @@
 # i8080
 
-A header-only, highly portable Intel 8080 CPU emulator written in C.
+A header-only, portable Intel 8080 CPU emulator in C.
 
-The entire emulator lives in `i8080.h` — just include it, implement four callbacks, and call `i8080_run()`.
+Everything is in `i8080.h`. Include it, implement four callbacks, call `i8080_run()`.
 
 ## Usage
 
@@ -27,43 +27,43 @@ void i8080_io_write8(i8080_t *cpu, uint8_t port, uint8_t value) {
     // Write `value` to I/O `port`.
 }
 
-/* Then initialize the CPU state and run: */
+/* Then initialize and run: */
 
 i8080_t cpu = {0};
-cpu.pc = 0x0100;  // set entry point
-cpu.sp = 0xf000;  // set stack pointer
+cpu.pc = 0x0100;  // entry point
+cpu.sp = 0xf000;  // stack pointer
 
 while (!cpu.halted) {
-    i8080_run(&cpu, 100000);  // execute up to 100000 cycles
+    i8080_run(&cpu, 100000);  // run up to 100000 cycles
 }
 ```
 
 ### Interrupts
 
-To signal an interrupt, call `i8080_interrupt()` with a single-byte RST opcode (0xC7–0xFF, bits [5:3] encode the vector):
+To signal an interrupt, call `i8080_interrupt()` with an RST opcode (0xC7–0xFF, bits [5:3] encode the vector):
 
 ```c
-i8080_interrupt(&cpu, 0xcf);  // RST 1 — calls address 0x0008
+i8080_interrupt(&cpu, 0xcf);  // RST 1, calls 0x0008
 ```
 
-Interrupts are ignored while `cpu.interrupt_enabled` is `0` (after `DI` or a previous interrupt). `EI` sets it back to `1`.
+Interrupts are ignored while `cpu.interrupt_enabled` is `0` (after `DI` or a previous interrupt). `EI` sets it to `1`.
 
-### CPU State
+### CPU state
 
-The `i8080_t` struct exposes everything:
+All registers and flags are directly accessible on `i8080_t`:
 
-| Field                | Description                       |
-|----------------------|-----------------------------------|
-| `pc`, `sp`           | Program counter, stack pointer    |
-| `a`–`l`             | General-purpose registers         |
-| `flags.z`            | Zero                              |
-| `flags.s`            | Sign                              |
-| `flags.p`            | Parity                            |
-| `flags.cy`           | Carry                             |
-| `flags.ac`           | Auxiliary carry                   |
-| `interrupt_enabled`  | Interrupt flag                    |
-| `halted`             | Set by `HLT`                      |
-| `cycles`             | Total cycle count (`uint64_t`)    |
+| Field                | Description                    |
+|----------------------|--------------------------------|
+| `pc`, `sp`           | Program counter, stack pointer |
+| `a`–`l`             | General-purpose registers      |
+| `flags.z`            | Zero                           |
+| `flags.s`            | Sign                           |
+| `flags.p`            | Parity                         |
+| `flags.cy`           | Carry                          |
+| `flags.ac`           | Auxiliary carry                |
+| `interrupt_enabled`  | Interrupt flag                 |
+| `halted`             | Set by `HLT`                   |
+| `cycles`             | Total cycle count (`uint64_t`) |
 
 ## Building
 
@@ -78,4 +78,4 @@ cmake --build build
 ./build/i8080
 ```
 
-The included `main.c` runs classic 8080 test ROMs (TST8080, 8080PRE, CPUTEST, 8080EXER, 8080EXM) from the `tests/` directory to verify instruction-level accuracy.
+`main.c` runs the 8080 test ROMs from `tests/` (TST8080, 8080PRE, CPUTEST, 8080EXER, 8080EXM) to verify instruction-level accuracy.
