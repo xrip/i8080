@@ -29,9 +29,10 @@ void i8080_io_write8(i8080_t *cpu, uint8_t port, uint8_t value) {
 
 /* Then initialize and run: */
 
-i8080_t cpu = {0};
-cpu.pc = 0x0100;  // entry point
-cpu.sp = 0xf000;  // stack pointer
+i8080_t cpu = {
+    .pc = 0x0100,
+    .sp = 0xf000,
+};
 
 while (!cpu.halted) {
     i8080_run(&cpu, 100000);  // run up to 100000 cycles
